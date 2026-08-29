@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<meta name="author" content="William Lodge">
+<meta name="license" content="CC BY 4.0">
+<meta name="version" content="1.0">
+<meta name="description" content="A single-file, offline field manual for turning an Android phone into a Linux workstation with Termux — packages, SSH, Git, web development, ADB, Shizuku, PRoot, Termux:X11, and a careful, current guide to Magisk, KernelSU, and APatch root.">
+<meta property="og:title" content="Termux Field Guide — Android Power User Manual (2026)">
+<meta property="og:description" content="Turn a stock Android phone into a pocket Linux workstation. Know exactly what needs no root, what needs ADB or Shizuku, and the few jobs that genuinely justify unlocking the bootloader.">
+<meta property="og:type" content="article">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='black'/%3E%3Ctext x='14' y='70' font-size='52' fill='white' font-family='monospace'%3E%3E_%3C/text%3E%3C/svg%3E">
+<title>Termux Field Guide — Android Power User Manual (2026)</title>
+<style>
+  :root{
+    --bg:#fff;--fg:#111;--muted:#5b5b5b;--line:#d7d7d7;--soft:#f5f5f5;--hard:#000;
+    --max:1180px;--mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.62}
+  a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+  button,input{font:inherit}
+  .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:2px solid #000}
+  .topbar-inner{max-width:var(--max);margin:auto;padding:.65rem 1rem;display:flex;gap:.7rem;align-items:center}
+  .brand{font-weight:900;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .search{flex:1;border:1px solid #000;padding:.58rem .7rem;background:#fff;color:#000}
+  .menu-btn{display:none;border:1px solid #000;background:#fff;padding:.5rem .7rem;font-weight:800}
+  .layout{max-width:var(--max);margin:auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:2.2rem;padding:1.6rem 1rem 5rem}
+  aside{position:sticky;top:68px;align-self:start;max-height:calc(100vh - 85px);overflow:auto;border-right:1px solid var(--line);padding-right:1.2rem}
+  aside nav a{display:block;padding:.34rem 0;text-decoration:none;font-size:.91rem}
+  aside nav a:hover{text-decoration:underline}
+  main{min-width:0}
+  .hero{border:3px solid #000;padding:2rem;margin-bottom:2rem}
+  .kicker{text-transform:uppercase;font-size:.78rem;font-weight:900;letter-spacing:.14em}
+  h1{font-size:clamp(2.1rem,6vw,4.5rem);line-height:.96;margin:.5rem 0 1rem;letter-spacing:-.04em}
+  .lead{font-size:1.12rem;max-width:810px}
+  .meta{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+  .badge{display:inline-flex;border:1px solid #000;padding:.2rem .48rem;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;background:#fff}
+  .badge.stock{background:#fff}
+  .badge.adb{background:#efefef}
+  .badge.shizuku{background:#ddd}
+  .badge.root{background:#000;color:#fff}
+  .badge.danger{border-style:double;border-width:3px}
+  .vtag{display:inline-block;margin-left:.55rem;font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border:1px solid #000;padding:.08rem .4rem;vertical-align:middle;white-space:nowrap}
+  .cite{font-size:.72em;font-weight:800;text-decoration:none;vertical-align:super;line-height:0}
+  .cite:hover{text-decoration:underline}
+  section{padding:1.8rem 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0}
+  h2{font-size:clamp(1.55rem,4vw,2.2rem);line-height:1.1;margin:0 0 .85rem}
+  h3{font-size:1.2rem;margin:1.5rem 0 .5rem}
+  h4{margin:1.1rem 0 .4rem}
+  p{margin:.6rem 0 1rem}
+  ul,ol{padding-left:1.3rem}
+  li{margin:.3rem 0}
+  table{border-collapse:collapse;width:100%;margin:1rem 0;display:block;overflow:auto}
+  th,td{border:1px solid #aaa;padding:.55rem .65rem;vertical-align:top;text-align:left}
+  th{background:#f2f2f2}
+  code{font-family:var(--mono);font-size:.92em;background:#f2f2f2;padding:.08rem .22rem}
+  pre{position:relative;background:#050505;color:#f7f7f7;padding:1rem 3.4rem 1rem 1rem;overflow:auto;border:1px solid #000;line-height:1.48}
+  pre code{background:transparent;color:inherit;padding:0}
+  .copy{position:absolute;right:.45rem;top:.45rem;background:#fff;color:#000;border:1px solid #fff;padding:.25rem .42rem;font-size:.72rem;font-weight:800;cursor:pointer}
+  .callout{border-left:5px solid #000;background:var(--soft);padding:.85rem 1rem;margin:1rem 0}
+  .warning{border:2px solid #000;padding:.9rem 1rem;margin:1rem 0}
+  .warning strong:first-child{display:block;text-transform:uppercase;letter-spacing:.07em;font-size:.8rem;margin-bottom:.3rem}
+  .dangerbox{border:4px double #000;padding:1rem;margin:1rem 0}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+  .card{border:1px solid #aaa;padding:1rem}
+  .card h3,.card h4{margin-top:0}
+  details{border:1px solid #bbb;margin:.7rem 0}
+  summary{font-weight:800;cursor:pointer;padding:.7rem .8rem;background:#f7f7f7}
+  details>div{padding:.2rem .9rem .9rem}
+  .small{font-size:.88rem;color:var(--muted)}
+  .mono{font-family:var(--mono)}
+  .where{border:2px solid #000;padding:1rem;background:#fff}
+  .where pre{margin:.5rem 0 0}
+  .toc-title{font-weight:900;text-transform:uppercase;font-size:.76rem;letter-spacing:.12em;margin-bottom:.5rem}
+  .checklist li{list-style:"☐  "}
+  .good li{list-style:"✓  "}
+  .bad li{list-style:"×  "}
+  .source-list li{word-break:break-word}
+  .footer{border-top:3px solid #000;padding:2rem 1rem 4rem;max-width:var(--max);margin:auto}
+  .hidden-by-search{display:none!important}
+  @media(max-width:820px){
+    .layout{grid-template-columns:1fr}
+    aside{position:fixed;left:0;top:57px;bottom:0;width:min(88vw,330px);max-height:none;background:#fff;z-index:30;padding:1rem;border-right:2px solid #000;transform:translateX(-110%);transition:.2s}
+    aside.open{transform:translateX(0)}
+    .menu-btn{display:inline-block}
+    .grid{grid-template-columns:1fr}
+    .hero{padding:1.25rem}
+  }
+  @media print{
+    .topbar,aside,.copy{display:none!important}
+    .layout{display:block;max-width:none}
+    section{break-inside:avoid-page}
+    pre{white-space:pre-wrap;color:#000;background:#fff;border:1px solid #000}
+    a{text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle contents">☰</button>
+    <div class="brand">Termux Field Guide</div>
+    <input id="search" class="search" type="search" placeholder="Search guide: ssh, shizuku, proot, root, node…">
+  </div>
+</header>
+
+<div class="layout">
+<aside id="sidebar">
+  <div class="toc-title">Field Manual</div>
+  <nav>
+    <a href="#start">00 — Start here</a>
+    <a href="#layers">01 — Know where you are</a>
+    <a href="#install">02 — Install Termux correctly</a>
+    <a href="#firstboot">03 — First boot & baseline</a>
+    <a href="#storage">04 — Files & Android storage</a>
+    <a href="#packages">05 — Packages & repositories</a>
+    <a href="#shell">06 — Shell, keyboard & tmux</a>
+    <a href="#git">07 — Git & GitHub</a>
+    <a href="#ssh">08 — SSH & server administration</a>
+    <a href="#dev">09 — Python, Node, PHP & compilers</a>
+    <a href="#web">10 — Local web development</a>
+    <a href="#database">11 — Databases</a>
+    <a href="#api">12 — Termux:API & Android</a>
+    <a href="#plugins">13 — Termux add-ons</a>
+    <a href="#apps">14 — Third-party companion apps</a>
+    <a href="#adb">15 — ADB & Wireless Debugging</a>
+    <a href="#shizuku">16 — Shizuku</a>
+    <a href="#proot">17 — Full Linux with PRoot</a>
+    <a href="#gui">18 — GUI Linux & Termux:X11</a>
+    <a href="#workstation">19 — Phone as workstation</a>
+    <a href="#rooting">20 — What happened to rooting?</a>
+    <a href="#boot">21 — Bootloader, AVB & partitions</a>
+    <a href="#rootchoices">22 — Magisk vs KernelSU vs APatch</a>
+    <a href="#rootworkflow">23 — Generic root workflow</a>
+    <a href="#rootrecovery">24 — Root recovery & bootloops</a>
+    <a href="#network">25 — Networking field kit</a>
+    <a href="#automation">26 — Automation</a>
+    <a href="#security">27 — Security rules</a>
+    <a href="#androidlimits">28 — Android limits & background killing</a>
+    <a href="#backup">29 — Backup & rebuild</a>
+    <a href="#trouble">30 — Troubleshooting</a>
+    <a href="#cheats">31 — Command cheat sheets</a>
+    <a href="#sources">32 — Sources & verification</a>
+  </nav>
+</aside>
+
+<main>
+<div class="hero">
+  <div class="kicker">Android / Linux / Termux / ADB / Shizuku / Root</div>
+  <h1>Termux Field Guide</h1>
+  <p class="lead">Your phone already runs a Linux kernel and carries more compute than the servers that powered the early web. This manual shows how to turn a stock Android phone into a pocket workstation — shell, SSH, Git, code, web servers, automation — and exactly where the line sits between what needs no root at all, what needs ADB or Shizuku, and the few jobs that genuinely justify unlocking the bootloader.</p>
+  <div class="meta">
+    <span class="badge stock">Stock</span>
+    <span class="badge adb">ADB</span>
+    <span class="badge shizuku">Shizuku</span>
+    <span class="badge root">Root</span>
+    <span class="badge">Verified 2026-08-29</span>
+    <span class="badge">Single-file / Offline</span>
+  </div>
+  <div class="callout"><strong>How to use this guide:</strong> this file works fully offline — save it to your phone, print it, or serve it locally with <code>python -m http.server</code>. Every command block has a copy button. Placeholders such as <code>USER</code>, <code>SERVER</code>, and <code>PACKAGE.NAME</code> must be replaced with your own values before running anything.</div>
+</div>
+
+<section id="start" data-search>
+<h2>00 — Start here</h2>
+<p>The most important rule in this guide is simple: <strong>do not root a phone just because you want Linux tools.</strong> Termux already gives you a strong Linux-like userspace without root. Add PRoot for a conventional Debian/Ubuntu-style environment, ADB or Shizuku for selected Android-level operations, and SSH for real server administration. Root is the final layer, not the starting layer.</p>
+
+<div class="grid">
+  <div class="card">
+    <h3>Best default path</h3>
+    <ol>
+      <li>Install stable Termux from F-Droid or the official GitHub releases.</li>
+      <li>Build a clean Termux baseline.</li>
+      <li>Add Git, SSH, Python/Node/PHP as needed.</li>
+      <li>Add Shizuku only when an Android app genuinely benefits from ADB-level privileges.</li>
+      <li>Add PRoot only when you need a conventional Linux distribution.</li>
+      <li>Consider root only for a specific capability that the earlier layers cannot provide.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>Access labels used here</h3>
+    <p><span class="badge stock">Stock</span> Works on a normal unrooted Android phone.</p>
+    <p><span class="badge adb">ADB</span> Requires Android debugging privileges.</p>
+    <p><span class="badge shizuku">Shizuku</span> Uses Shizuku's delegated ADB/root service.</p>
+    <p><span class="badge root">Root</span> Requires real superuser access.</p>
+  </div>
+</div>
+
+<div class="warning">
+<strong>Do not paste unknown commands</strong>
+Commands can delete projects, remove Android packages, expose network services, overwrite keys, or — at the root/fastboot layer — make a device unbootable. Read commands before running them. Commands in this guide use placeholders such as <code>USER</code>, <code>SERVER</code>, and <code>PACKAGE.NAME</code> on purpose.
+</div>
+</section>
+
+<section id="layers" data-search>
+<h2>01 — Know where you are</h2>
+<p>Many Android/Linux problems are really context problems. <code>pkg</code>, <code>apt</code>, <code>dnf</code>, <code>systemctl</code>, <code>adb</code>, and <code>su</code> do not all belong to the same environment.</p>
+
+<div class="where">
+<strong>Environment map</strong>
+<pre><code>ANDROID DEVICE
+│
+├── Normal Android apps
+│
+├── Termux                         [STOCK]
+│   ├── pkg / apt
+│   ├── bash / zsh / fish
+│   ├── git / ssh / python / node / php
+│   ├── local web servers
+│   └── ssh user@server ───────────────┐
+│                                      │
+├── PRoot-Distro                    [STOCK]
+│   ├── Debian / Ubuntu / Alpine       │
+│   ├── distro package manager         │
+│   └── fake root inside container     │
+│                                      ▼
+├── ADB / Wireless Debugging        [ADB]       REMOTE VPS
+│   └── Android shell privileges                 ├── AlmaLinux: dnf
+│                                                ├── Debian: apt
+├── Shizuku                      [SHIZUKU]       ├── sudo
+│   └── delegated ADB/root APIs                 └── systemctl
+│
+└── Real Android root               [ROOT]
+    ├── Magisk
+    ├── KernelSU
+    └── APatch</code></pre>
+</div>
+
+<h3>Fast environment check</h3>
+<pre><code>whoami
+pwd
+uname -a
+printf 'HOME=%s\nPREFIX=%s\n' "$HOME" "$PREFIX"
+command -v pkg apt dnf systemctl sudo su 2>/dev/null</code></pre>
+
+<table>
+<tr><th>If you see…</th><th>You are probably in…</th><th>Typical package tool</th></tr>
+<tr><td><code>/data/data/com.termux/files/home</code></td><td>Termux</td><td><code>pkg</code> / <code>apt</code></td></tr>
+<tr><td><code>/root</code> in a PRoot distro</td><td>PRoot container</td><td>Distro-specific, often <code>apt</code></td></tr>
+<tr><td><code>/home/admin</code> or server hostname</td><td>Remote Linux server</td><td><code>dnf</code>, <code>apt</code>, etc.</td></tr>
+<tr><td><code>uid=2000(shell)</code></td><td>ADB shell</td><td>Android shell commands; not a normal distro</td></tr>
+<tr><td><code>uid=0(root)</code> on Android</td><td>Actual root shell</td><td>Android/root tooling; extreme care</td></tr>
+</table>
+</section>
+
+<section id="install" data-search>
+<h2>02 — Install Termux correctly <span class="vtag">Verified 2026-08-29</span></h2>
+<p><span class="badge stock">Stock</span></p>
+<p>As of this guide's verification date, the Termux project's position is unambiguous: <strong>F-Droid and the official GitHub releases are the only official installation sources.</strong> The Google Play release has diverged from the project's master branch and is treated by the project as a <strong>deprecated, unofficial fork</strong> with policy-driven differences and missing functionality. Because the Play build is signed with different keys, Play updates also fail against existing F-Droid/GitHub installs.<a class="cite" href="#src1">[1]</a><a class="cite" href="#src2">[2]</a><a class="cite" href="#src3">[3]</a></p>
+
+<h3>Preferred sources</h3>
+<ol>
+<li><strong>F-Droid build:</strong> the recommended stable channel for most people.</li>
+<li><strong>Official GitHub release:</strong> direct project builds — and required for certain add-on variants, such as the sharedUid Termux:X11 build covered later.</li>
+<li><strong>Google Play build:</strong> deprecated and separately signed. The project does not recommend it; do not mix it with F-Droid/GitHub installs.</li>
+</ol>
+
+<div class="dangerbox">
+<strong>Never mix Termux app/plugin signing families.</strong>
+Termux plugins must be signed compatibly with the main Termux app. If you switch between F-Droid, GitHub, and Play signing families, uninstalling Termux and all plugins may be required. Back up <code>$HOME</code> first.<a class="cite" href="#src2">[2]</a>
+</div>
+
+<h3>After installation</h3>
+<pre><code>pkg update
+pkg upgrade</code></pre>
+<p>If repositories fail immediately, do not blindly run random “fix Termux repo” scripts from old videos. First check the installation source and current repository configuration.</p>
+</section>
+
+<section id="firstboot" data-search>
+<h2>03 — First boot & baseline</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Minimal baseline</h3>
+<pre><code>pkg update &amp;&amp; pkg upgrade
+pkg install git openssh curl wget nano vim tmux \
+  python nodejs-lts php clang make pkg-config \
+  zip unzip tar rsync jq tree file less man</code></pre>
+
+<p>Package names change over time. If one package is unavailable, remove it from the command and search:</p>
+<pre><code>pkg search NAME</code></pre>
+
+<h3>Useful identity snapshot</h3>
+<pre><code>echo "=== DEVICE ==="
+uname -a
+getprop ro.product.model 2>/dev/null
+getprop ro.build.version.release 2>/dev/null
+
+echo "=== TERMUX ==="
+termux-info 2>/dev/null || true
+echo "$PREFIX"
+echo "$HOME"
+
+echo "=== TOOLS ==="
+git --version
+ssh -V
+python --version
+node --version
+php -v | head -n 1</code></pre>
+
+<h3>Create work folders</h3>
+<pre><code>mkdir -p ~/projects ~/scripts ~/tmp ~/notes
+chmod 700 ~/.ssh 2>/dev/null || true</code></pre>
+
+<h3>Safe baseline shell aliases</h3>
+<pre><code>cat >> ~/.bashrc &lt;&lt;'EOF'
+alias ll='ls -lah'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias gs='git status'
+alias ports='ss -lntup 2&gt;/dev/null || ss -lntp'
+alias myip='curl -fsS https://api.ipify.org; echo'
+EOF
+
+source ~/.bashrc</code></pre>
+</section>
+
+<section id="storage" data-search>
+<h2>04 — Files & Android storage</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Termux private home</h3>
+<p>Your normal workspace is <code>$HOME</code>, commonly under Termux's private app storage. Android file managers generally cannot browse this directly because app sandboxes are intentional.</p>
+
+<h3>Shared storage</h3>
+<pre><code>termux-setup-storage</code></pre>
+<p>Approve Android's permission prompt. Termux typically creates convenience links under <code>~/storage/</code>.</p>
+
+<pre><code>ls -lah ~/storage
+cd ~/storage/downloads
+cd ~/storage/shared</code></pre>
+
+<div class="callout"><strong>Recommendation:</strong> keep Git repositories and software build trees in Termux private storage such as <code>~/projects</code>. Use shared storage mainly for exchanging files with Android apps. Android shared storage can have permission and filesystem behavior that breaks Unix assumptions.</div>
+
+<h3>Move a file to Downloads</h3>
+<pre><code>cp ~/projects/report/output.html ~/storage/downloads/</code></pre>
+
+<h3>Import a file from Downloads</h3>
+<pre><code>cp ~/storage/downloads/config.json ~/projects/myapp/</code></pre>
+</section>
+
+<section id="packages" data-search>
+<h2>05 — Packages & repositories</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<table>
+<tr><th>Task</th><th>Termux command</th></tr>
+<tr><td>Update package indexes</td><td><code>pkg update</code></td></tr>
+<tr><td>Upgrade installed packages</td><td><code>pkg upgrade</code></td></tr>
+<tr><td>Install</td><td><code>pkg install NAME</code></td></tr>
+<tr><td>Remove</td><td><code>pkg uninstall NAME</code></td></tr>
+<tr><td>Search</td><td><code>pkg search TEXT</code></td></tr>
+<tr><td>List installed</td><td><code>pkg list-installed</code></td></tr>
+<tr><td>Package details</td><td><code>apt show NAME</code></td></tr>
+</table>
+
+<h3>Optional repositories</h3>
+<pre><code># GUI/X11 packages
+pkg install x11-repo
+
+# Root-specific Termux packages — useful only on a rooted device
+pkg install root-repo</code></pre>
+
+<div class="warning">
+<strong>Termux is not AlmaLinux</strong>
+Installing <code>dnf</code> is not how you turn Termux into AlmaLinux. If you need AlmaLinux administration, SSH into an AlmaLinux machine. If you need a distro-like local environment, use PRoot.
+</div>
+</section>
+
+<section id="shell" data-search>
+<h2>06 — Shell, keyboard & tmux</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Touch-friendly terminal habits</h3>
+<ul>
+<li>Use Android's text-selection handles for copy/paste when available.</li>
+<li>A hardware keyboard dramatically improves SSH and coding.</li>
+<li>Use Termux's extra-keys row for <code>ESC</code>, <code>CTRL</code>, arrows, pipes, and tabs.</li>
+<li>Use <code>tmux</code> for long-lived terminal sessions that survive accidental disconnects.</li>
+</ul>
+
+<h3>tmux essentials</h3>
+<pre><code>tmux new -s work
+tmux ls
+tmux attach -t work</code></pre>
+<p>Inside tmux, the default command prefix is <code>Ctrl+b</code>. Common shortcuts: <code>c</code> new window, <code>n</code> next, <code>p</code> previous, <code>d</code> detach.</p>
+
+<h3>Zsh (optional)</h3>
+<pre><code>pkg install zsh
+zsh</code></pre>
+<p>Do not install a huge shell framework on day one. Start clean; add plugins only after the base environment is stable.</p>
+</section>
+
+<section id="git" data-search>
+<h2>07 — Git & GitHub</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Identity</h3>
+<pre><code>git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main</code></pre>
+
+<h3>SSH key for Git hosting</h3>
+<pre><code>mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+
+ssh-keygen -t ed25519 -a 100 -C "android-termux"
+cat ~/.ssh/id_ed25519.pub</code></pre>
+
+<p>Add the <strong>public</strong> key to your Git hosting account. Never upload or paste your private <code>id_ed25519</code> file.</p>
+
+<h3>Clone and work</h3>
+<pre><code>cd ~/projects
+git clone git@github.com:OWNER/REPO.git
+cd REPO
+git status
+git pull --ff-only</code></pre>
+
+<h3>Normal commit loop</h3>
+<pre><code>git status
+git diff
+git add path/to/file
+git commit -m "Describe the change"
+git push</code></pre>
+
+<div class="callout"><strong>Phone workflow:</strong> use Git as your safety net. Small commits are especially valuable on a mobile device where accidental app closure, battery loss, or storage pressure can interrupt work.</div>
+</section>
+
+<section id="ssh" data-search>
+<h2>08 — SSH & server administration</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Connect</h3>
+<pre><code>ssh USER@SERVER</code></pre>
+
+<h3>Create a dedicated key</h3>
+<pre><code>ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519_server</code></pre>
+
+<h3>SSH config aliases</h3>
+<pre><code>cat >> ~/.ssh/config &lt;&lt;'EOF'
+Host myserver
+    HostName server.example.com
+    User admin
+    IdentityFile ~/.ssh/id_ed25519_server
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+EOF
+
+chmod 600 ~/.ssh/config
+ssh myserver</code></pre>
+
+<h3>Copy public key to server</h3>
+<pre><code>ssh-copy-id -i ~/.ssh/id_ed25519_server.pub USER@SERVER</code></pre>
+
+<h3>Transfer files</h3>
+<pre><code># phone -> server
+scp file.zip USER@SERVER:/home/USER/
+
+# server -> phone
+scp USER@SERVER:/home/USER/report.txt .
+
+# directory sync
+rsync -av --progress ./site/ USER@SERVER:/var/www/site/</code></pre>
+
+<h3>Port forwarding</h3>
+<pre><code># Make a remote service on 127.0.0.1:8080 reachable locally as 8080
+ssh -L 8080:127.0.0.1:8080 USER@SERVER</code></pre>
+
+<div class="warning">
+<strong>Server shell vs Termux shell</strong>
+After <code>ssh myserver</code>, commands run on the server. If the server is AlmaLinux, <code>dnf</code> and <code>systemctl</code> belong there. Type <code>exit</code> to return to Termux.
+</div>
+</section>
+
+<section id="dev" data-search>
+<h2>09 — Python, Node, PHP & compilers</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Python</h3>
+<pre><code>pkg install python
+python --version
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip</code></pre>
+
+<h3>Node.js</h3>
+<pre><code>pkg install nodejs-lts
+node --version
+npm --version
+
+mkdir demo &amp;&amp; cd demo
+npm init -y</code></pre>
+
+<h3>PHP</h3>
+<pre><code>pkg install php
+php -v</code></pre>
+
+<h3>C/C++ build tools</h3>
+<pre><code>pkg install clang make cmake pkg-config
+clang --version</code></pre>
+
+<h3>Native package caveat</h3>
+<p>Android is Linux-based but is not a standard GNU/Linux distribution. Some npm/pip packages assume glibc, systemd, desktop libraries, or kernel features that Termux does not expose. When a project fights Termux too hard, move the build to:</p>
+<ul>
+<li>a PRoot distro,</li>
+<li>your VPS,</li>
+<li>GitHub Actions/CI, or</li>
+<li>a conventional Linux workstation.</li>
+</ul>
+</section>
+
+<section id="web" data-search>
+<h2>10 — Local web development</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Simple static server</h3>
+<pre><code>cd ~/projects/site
+python -m http.server 8080</code></pre>
+<p>Open <code>http://127.0.0.1:8080</code> in the phone browser.</p>
+
+<h3>PHP development server</h3>
+<pre><code>php -S 127.0.0.1:8080 -t public</code></pre>
+
+<h3>Vite-style development</h3>
+<pre><code>npm install
+npm run dev -- --host 127.0.0.1</code></pre>
+
+<h3>LAN exposure — deliberate only</h3>
+<pre><code># Example: bind a test server to all interfaces
+python -m http.server 8080 --bind 0.0.0.0</code></pre>
+
+<div class="warning">
+<strong>Network exposure</strong>
+Binding to <code>0.0.0.0</code> can make the service reachable by other devices on the same network. Do not expose admin panels, dev servers, databases, or secrets to untrusted Wi-Fi.
+</div>
+</section>
+
+<section id="database" data-search>
+<h2>11 — Databases</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>SQLite — ideal on-device default</h3>
+<pre><code>pkg install sqlite
+sqlite3 app.db</code></pre>
+
+<h3>Server databases</h3>
+<p>For production MySQL/MariaDB/PostgreSQL, your remote VPS is usually the cleaner target. On-device database servers are useful for testing, but Android process lifecycle and storage limits make a phone a poor unattended production database host.</p>
+
+<h3>Never expose a database directly to the Internet</h3>
+<p>Use application APIs, VPN/private networking, or an SSH tunnel instead of making database ports globally reachable.</p>
+</section>
+
+<section id="api" data-search>
+<h2>12 — Termux:API & Android integration</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<p>Termux:API exposes selected Android APIs to scripts. The add-on app and main Termux app need compatible signing, and the command package must be installed inside Termux.<a class="cite" href="#src4">[4]</a></p>
+
+<pre><code>pkg install termux-api</code></pre>
+
+<h3>Examples</h3>
+<pre><code># Show a notification
+termux-notification --title "Termux" --content "Task finished"
+
+# Clipboard
+printf 'hello from Termux' | termux-clipboard-set
+termux-clipboard-get
+
+# Device battery information
+termux-battery-status | jq
+
+# Vibrate briefly
+termux-vibrate -d 200
+
+# Text to speech
+termux-tts-speak "Build complete"</code></pre>
+
+<p>Actual availability depends on Android version, Termux distribution, app permissions, and the installed Termux:API build.</p>
+</section>
+
+<section id="plugins" data-search>
+<h2>13 — Termux add-ons</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<table>
+<tr><th>Add-on</th><th>What it does</th><th>Use case</th></tr>
+<tr><td>Termux:API</td><td>Android APIs from commands/scripts</td><td>notifications, clipboard, battery, sensors, TTS, etc.</td></tr>
+<tr><td>Termux:Boot</td><td>Run scripts after boot</td><td>start lightweight automation</td></tr>
+<tr><td>Termux:Widget</td><td>Home-screen shortcuts to scripts</td><td>one-tap server checks and utilities</td></tr>
+<tr><td>Termux:Tasker</td><td>Tasker ↔ Termux command integration</td><td>event-driven automation</td></tr>
+<tr><td>Termux:Float</td><td>Floating terminal</td><td>quick terminal over another app</td></tr>
+<tr><td>Termux:Styling</td><td>Fonts/themes for Termux</td><td>UI customization</td></tr>
+</table>
+
+<div class="callout">Plugin availability and behavior differ by Termux distribution. Because the Google Play branch is deprecated and separately signed, do not assume Play plugin builds match F-Droid/GitHub plugin behavior — mixing them can force a full reinstall.<a class="cite" href="#src2">[2]</a></div>
+</section>
+
+<section id="apps" data-search>
+<h2>14 — Third-party companion apps</h2>
+
+<p>These apps are not required. Add them because they solve a specific workflow problem, not because a “power user pack” told you to install everything.</p>
+
+<div class="grid">
+<div class="card">
+<h3>Shizuku</h3>
+<p><span class="badge adb">ADB</span> <span class="badge shizuku">Shizuku</span></p>
+<p>Lets compatible apps use privileged Android APIs through an ADB or root-backed service without giving every app unrestricted root.<a class="cite" href="#src9">[9]</a> Covered in depth in section 16.</p>
+</div>
+
+<div class="card">
+<h3>Obtainium</h3>
+<p><span class="badge stock">Stock</span></p>
+<p>Tracks and installs Android app releases directly from supported upstream sources such as GitHub/GitLab. Useful when you intentionally use project APKs outside Play.<a class="cite" href="#src17">[17]</a></p>
+</div>
+
+<div class="card">
+<h3>aShell You</h3>
+<p><span class="badge adb">ADB</span> <span class="badge shizuku">Shizuku</span></p>
+<p>GUI-oriented ADB/root/shell tool that can use Shizuku, root, OTG, or wireless debugging depending on the operation.<a class="cite" href="#src18">[18]</a></p>
+</div>
+
+<div class="card">
+<h3>LADB</h3>
+<p><span class="badge adb">ADB</span></p>
+<p>Runs a local ADB client/server workflow using Android Wireless Debugging. Its own documentation warns of incompatibility with Shizuku in some setups, so choose one workflow rather than stacking tools blindly.<a class="cite" href="#src19">[19]</a></p>
+</div>
+
+<div class="card">
+<h3>Acode</h3>
+<p><span class="badge stock">Stock</span></p>
+<p>Android-focused code editor useful for HTML/CSS/JS and quick edits when a full terminal editor is inconvenient.<a class="cite" href="#src20">[20]</a></p>
+</div>
+
+<div class="card">
+<h3>Material Files</h3>
+<p><span class="badge stock">Stock</span></p>
+<p>A capable Android file manager. Useful for shared storage and ordinary files, but it does not bypass Android's app sandbox.<a class="cite" href="#src21">[21]</a></p>
+</div>
+</div>
+
+<h3>Other useful categories</h3>
+<ul>
+<li><strong>Password manager:</strong> store server logins and recovery material securely; do not keep plaintext secrets in Downloads.</li>
+<li><strong>Authenticator:</strong> use TOTP/passkeys for Git hosting and server control panels.</li>
+<li><strong>SFTP client:</strong> optional if you prefer GUI file transfer over <code>scp</code>/<code>rsync</code>.</li>
+<li><strong>VNC/RDP client:</strong> useful for remote desktops; do not confuse this with Termux:X11, which displays local Linux GUI apps.</li>
+<li><strong>Tasker:</strong> powerful automation layer when Termux:Tasker or Android intents are appropriate.</li>
+</ul>
+</section>
+
+<section id="adb" data-search>
+<h2>15 — ADB & Wireless Debugging <span class="vtag">Verified 2026-08-29</span></h2>
+<p><span class="badge adb">ADB</span></p>
+
+<p>ADB is Android's developer bridge. It is more privileged than an ordinary app, but <strong>ADB shell is not root</strong>. Modern Android supports wireless debugging on Android 11+; newer platform releases continue improving Wi-Fi pairing.<a class="cite" href="#src10">[10]</a></p>
+
+<h3>Developer options</h3>
+<ol>
+<li>Open Android Settings → About phone.</li>
+<li>Tap Build number repeatedly until Developer options are enabled.</li>
+<li>Open Developer options.</li>
+<li>Enable USB debugging or Wireless debugging as needed.</li>
+</ol>
+
+<h3>From a separate computer</h3>
+<pre><code>adb devices
+adb shell
+adb reboot bootloader</code></pre>
+
+<h3>Wireless pairing concept</h3>
+<pre><code># Commands and ports shown by Android change per pairing session.
+adb pair IP:PAIRING_PORT
+adb connect IP:ADB_PORT
+adb shell</code></pre>
+
+<h3>Useful read-only diagnostics</h3>
+<pre><code>adb shell getprop ro.product.model
+adb shell getprop ro.build.version.release
+adb shell pm list packages | head
+adb shell dumpsys battery
+adb shell df -h</code></pre>
+
+<div class="dangerbox">
+<strong>High-risk ADB operations:</strong> package removal/disable commands, permission manipulation, system settings writes, and shell scripts copied from debloat lists can break apps or device functionality. Export a package list and understand reversibility before changing anything.
+</div>
+</section>
+
+<section id="shizuku" data-search>
+<h2>16 — Shizuku <span class="vtag">Verified 2026-08-29</span></h2>
+<p><span class="badge shizuku">Shizuku</span></p>
+
+<p>Shizuku acts as a broker: compatible apps can call privileged system APIs through a service started with ADB-level or root privileges. It is not magic root and does not grant arbitrary Linux root to every app.<a class="cite" href="#src9">[9]</a></p>
+
+<h3>Unrooted setup on Android 11+</h3>
+<ol>
+<li>Install Shizuku from a trusted source.</li>
+<li>Enable Developer options and Wireless debugging.</li>
+<li>Use “Pair device with pairing code.”</li>
+<li>Enter the pairing code into Shizuku's notification.</li>
+<li>Start the Shizuku service.</li>
+<li>Grant Shizuku access only to apps you trust.</li>
+</ol>
+
+<div class="callout">On an unrooted device, Shizuku's wireless-debugging service must be started again after every reboot — that is a documented system limitation, not a bug in your setup.<a class="cite" href="#src9">[9]</a> Root-backed Shizuku can start on boot instead.</div>
+
+<h3>Fast restart without re-pairing</h3>
+<p>If you have ADB access (from a computer, or an on-device ADB shell), you can restart the Shizuku service directly without repeating the full pairing flow:</p>
+<pre><code>adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh</code></pre>
+<p>Where available, also enable <strong>“Disable adb authorization timeout”</strong> in Developer options — it extends the life of the wireless debugging session.<a class="cite" href="#src9">[9]</a></p>
+
+<h3>What it is good for</h3>
+<ul>
+<li>Package-management helpers.</li>
+<li>App permission managers.</li>
+<li>ADB-shell-style utilities.</li>
+<li>Some backup, automation, and system-management apps.</li>
+</ul>
+
+<h3>What it is not</h3>
+<ul class="bad">
+<li>A replacement for an unlocked bootloader.</li>
+<li>A way to flash boot partitions.</li>
+<li>Full unrestricted root.</li>
+<li>A reason to authorize random apps.</li>
+</ul>
+</section>
+
+<section id="proot" data-search>
+<h2>17 — Full Linux with PRoot-Distro</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<p>PRoot-Distro provides chroot-like Linux environments without device root or a kernel module. Current versions can work with conventional distro root filesystems and OCI/container images while staying inside the Termux app sandbox.<a class="cite" href="#src7">[7]</a></p>
+
+<h3>Install</h3>
+<pre><code>pkg install proot-distro
+proot-distro list</code></pre>
+
+<h3>Install a distro</h3>
+<pre><code># Use an alias shown by `proot-distro list`
+proot-distro install debian
+proot-distro login debian</code></pre>
+
+<h3>Inside Debian</h3>
+<pre><code>apt update
+apt upgrade
+apt install git curl build-essential</code></pre>
+
+<h3>Why root appears inside PRoot</h3>
+<p>You may see a <code>root@localhost</code> prompt. That is <strong>not Android root</strong>. PRoot emulates filesystem/process behavior so the distro thinks you are root inside that container-like environment. It does not give you unrestricted access to Android's protected partitions.</p>
+
+<h3>Use PRoot when</h3>
+<ul class="good">
+<li>a project expects Debian/Ubuntu filesystem layout,</li>
+<li>software assumes a conventional distro package manager,</li>
+<li>you want a desktop environment,</li>
+<li>you need packages that are awkward in native Termux.</li>
+</ul>
+
+<h3>Avoid PRoot when</h3>
+<ul>
+<li>native Termux packages already solve the problem,</li>
+<li>you need real kernel features, Docker daemon semantics, systemd-as-PID-1, or privileged mounts,</li>
+<li>performance matters more than compatibility.</li>
+</ul>
+</section>
+
+<section id="gui" data-search>
+<h2>18 — GUI Linux & Termux:X11 <span class="vtag">Verified 2026-08-29</span></h2>
+<p><span class="badge stock">Stock</span></p>
+
+<p>Termux:X11 is the Termux project's X server add-on. It requires <strong>both an Android app and a companion Termux package</strong>, and Android 8 or later.<a class="cite" href="#src8">[8]</a></p>
+
+<h3>Termux-side packages</h3>
+<pre><code>pkg install x11-repo
+pkg install termux-x11-nightly
+pkg install xfce</code></pre>
+
+<p>The companion Android Termux:X11 APK must also be installed from the project's current nightly release tag (<code>termux-x11-universal-debug.apk</code>).<a class="cite" href="#src8">[8]</a></p>
+
+<div class="callout"><strong>GitHub-only variant worth knowing:</strong> Android gives less CPU time to apps that are not on screen — and once Termux:X11 opens, Android treats Termux as backgrounded, which can slow your desktop apps. The <code>termux-x11-universal-sharedUid-debug.apk</code> variant runs as part of Termux itself and avoids this, but it only works with the <strong>GitHub-signed</strong> Termux build, not F-Droid or Play.<a class="cite" href="#src8">[8]</a></div>
+
+<h3>Typical native-Termux XFCE concept</h3>
+<pre><code>termux-x11 :1 &amp;
+export DISPLAY=:1
+startxfce4</code></pre>
+
+<p>Exact launch flags evolve. Use the current Termux:X11 README when configuring it.</p>
+
+<h3>GUI inside PRoot</h3>
+<p>You can also run an XFCE/LXQt-style desktop inside Debian/Ubuntu PRoot and display it through Termux:X11. This increases compatibility at the cost of storage, RAM, and complexity.</p>
+
+<div class="warning">
+<strong>Do not expect a phone GUI distro to behave like a laptop install.</strong>
+Android owns the kernel, process lifecycle, input stack, power management, and hardware integration. Linux GUI apps are guests inside that environment.
+</div>
+</section>
+
+<section id="workstation" data-search>
+<h2>19 — Turning a phone into a workstation</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Useful hardware</h3>
+<ul>
+<li>USB-C hub with USB-A and power pass-through.</li>
+<li>Compact Bluetooth or USB keyboard.</li>
+<li>Mouse or trackpad.</li>
+<li>Portable USB-C display if the phone supports suitable display output, or a wireless/remote-display workflow otherwise.</li>
+<li>USB-C PD power bank.</li>
+<li>Small SSD or flash drive for transfers/backups.</li>
+</ul>
+
+<h3>Recommended software split</h3>
+<table>
+<tr><th>Job</th><th>Best layer</th></tr>
+<tr><td>Fast shell, SSH, Git</td><td>Native Termux</td></tr>
+<tr><td>Editing a few web files</td><td>Termux editor or Acode</td></tr>
+<tr><td>Conventional Linux packages</td><td>PRoot distro</td></tr>
+<tr><td>Desktop Linux GUI app</td><td>Termux:X11 + native/PRoot app</td></tr>
+<tr><td>Real production server</td><td>Remote VPS over SSH</td></tr>
+<tr><td>Android privileged management</td><td>ADB/Shizuku first; root only if necessary</td></tr>
+</table>
+</section>
+
+<section id="rooting" data-search>
+<h2>20 — What happened to rooting?</h2>
+<p><span class="badge root">Root</span></p>
+
+<p><strong>Rooting did not die.</strong> What changed is that root stopped being the universal answer to Android customization.</p>
+
+<h3>Why root used to feel essential</h3>
+<ul>
+<li>Early Android lacked many quality-of-life features now built into the OS.</li>
+<li>Power users wanted ad blocking, full backups, tethering changes, CPU controls, themes, permission control, and deeper automation.</li>
+<li>OEM software was often more restrictive while Android itself exposed fewer user-facing controls.</li>
+</ul>
+
+<h3>Why it became less common</h3>
+<ol>
+<li><strong>Android got better.</strong> Many old root-only conveniences became standard OS features or possible through normal apps.</li>
+<li><strong>ADB got more useful.</strong> Wireless Debugging made developer-shell workflows much easier.</li>
+<li><strong>Shizuku filled a middle layer.</strong> Some apps can use privileged Android APIs without full root.</li>
+<li><strong>Android security hardened.</strong> SELinux, app sandboxing, Verified Boot/AVB, scoped storage, rollback protection, hardware-backed key systems, and integrity attestation raised the cost of modifying the platform.</li>
+<li><strong>Apps care about integrity state.</strong> Financial, streaming, workplace, DRM, and game apps may restrict modified devices.</li>
+<li><strong>OTA updates are more complex with modifications.</strong> A/B slots and modern boot partition layouts make careless patching more expensive.</li>
+<li><strong>Bootloaders are not equally unlockable.</strong> Manufacturer/carrier policy varies by exact model.</li>
+</ol>
+
+<h3>What root is still excellent for</h3>
+<ul>
+<li>Kernel-level experimentation and tuning.</li>
+<li>Full-device automation requiring genuine superuser access.</li>
+<li>Advanced firewall/network control.</li>
+<li>Deep filesystem inspection and forensic lab work on a device you own/control.</li>
+<li>Systemless modules and low-level customization.</li>
+<li>Development/testing of root-aware software.</li>
+</ul>
+
+<h3>The modern rule</h3>
+<p><strong>Root because you can name the capability you need.</strong> “I want Linux commands” is not enough. “I need a kernel module / root firewall / protected filesystem access / root-only test environment” is a concrete reason.</p>
+</section>
+
+<section id="boot" data-search>
+<h2>21 — Bootloader, Verified Boot & partitions</h2>
+<p><span class="badge root">Root</span> <span class="badge danger">High risk</span></p>
+
+<p>Modern Android uses a chain of trust. Verified Boot checks that boot-critical software matches trusted cryptographic metadata. An unlocked bootloader allows owner-directed flashing on devices that support unlocking, but the security state changes and Android shows an unlocked-device warning.<a class="cite" href="#src11">[11]</a><a class="cite" href="#src12">[12]</a></p>
+
+<h3>Unlocking normally wipes user data</h3>
+<p>Android's reference design requires a data wipe when transitioning between locked and unlocked bootloader states. Back up first.<a class="cite" href="#src11">[11]</a></p>
+
+<h3>Core terms</h3>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Bootloader</td><td>Early-stage software that initializes hardware, verifies boot state, and starts Android.</td></tr>
+<tr><td>Fastboot</td><td>Bootloader protocol/tool for supported devices.</td></tr>
+<tr><td>AVB</td><td>Android Verified Boot; cryptographic verification/rollback-protection framework.</td></tr>
+<tr><td><code>boot</code></td><td>Commonly contains kernel and/or ramdisk data depending on device generation.</td></tr>
+<tr><td><code>init_boot</code></td><td>Separate init ramdisk partition on devices launched with Android 13+.</td></tr>
+<tr><td><code>vendor_boot</code></td><td>Vendor boot components on newer partition layouts.</td></tr>
+<tr><td>A/B slots</td><td>Two update slots that let Android apply OTAs with reduced downtime and support fallback behavior.</td></tr>
+</table>
+
+<div class="dangerbox">
+<strong>Never generalize partition instructions across devices.</strong>
+Magisk, KernelSU, and APatch do not necessarily patch the same partition on every device. The correct image depends on device, Android release, kernel, rooting method, and project instructions.
+</div>
+</section>
+
+<section id="rootchoices" data-search>
+<h2>22 — Magisk vs KernelSU vs APatch <span class="vtag">Verified 2026-08-29</span></h2>
+<p><span class="badge root">Root</span></p>
+
+<table>
+<tr><th>System</th><th>Model</th><th>Strengths</th><th>Important caveat</th></tr>
+<tr>
+<td><strong>Magisk</strong><a class="cite" href="#src13">[13]</a></td>
+<td>Userspace systemless root via patched boot/init image</td>
+<td>Largest ecosystem: MagiskSU, modules, built-in Zygisk, broad device familiarity. Actively maintained — v30.7 (February 2026) added Android 16 QPR2 sepolicy and Zygisk support.</td>
+<td>Correct patch target varies by device generation (<code>boot</code> vs <code>init_boot</code>); use current official install docs.</td>
+</tr>
+<tr>
+<td><strong>KernelSU</strong><a class="cite" href="#src14">[14]</a></td>
+<td>Kernel-space root</td>
+<td>Kernel-level permission model and app profiles. Two modes: LKM (load into the existing kernel by patching the ramdisk — <code>init_boot</code> on Android 13+) and GKI (flash KernelSU's kernel).</td>
+<td>Officially targets GKI 2.0 devices (kernel 5.10+); wrong kernel/KMI or compression format can bootloop. The community <strong>KernelSU-Next</strong> fork extends coverage to many older/non-GKI kernels.<a class="cite" href="#src15">[15]</a></td>
+</tr>
+<tr>
+<td><strong>APatch</strong><a class="cite" href="#src16">[16]</a></td>
+<td>Kernel patching (KernelPatch) via modified <code>boot.img</code></td>
+<td>No kernel rebuild needed: patches the stock boot image and injects kernel patches at runtime. APM (Magisk-style) modules plus KPM (kernel-space) modules.</td>
+<td><strong>ARM64 only</strong>; kernel versions <strong>3.18–6.12</strong>; requires <code>CONFIG_KALLSYMS</code> in the kernel. The SuperKey credential is more privileged than root — guard it like a master password.</td>
+</tr>
+</table>
+
+<div class="warning">
+<strong>One root system per device.</strong>
+Magisk's mount system conflicts with KernelSU/APatch module mounting — running two of them on the same boot slot will break one or both. Pick one, and uninstall cleanly before switching.
+</div>
+
+<h3>Selection rule</h3>
+<ul>
+<li>Choose based on <strong>exact device + exact firmware + exact kernel</strong>, not popularity.</li>
+<li>Prefer the project's official documentation and device-specific community evidence.</li>
+<li>Keep the matching stock firmware image before modifying anything.</li>
+<li>Do not flash an image prepared for a different build number or security patch level.</li>
+</ul>
+</section>
+
+<section id="rootworkflow" data-search>
+<h2>23 — Generic root workflow</h2>
+<p><span class="badge root">Root</span> <span class="badge danger">High risk</span></p>
+
+<p>This section intentionally gives the workflow rather than a blind device-specific paste script. Rooting is one place where “universal commands” can cause real damage.</p>
+
+<ol class="checklist">
+<li>Confirm the exact device model and carrier variant.</li>
+<li>Confirm whether OEM unlocking is supported.</li>
+<li>Back up all user data — bootloader unlock usually wipes the phone.</li>
+<li>Record the current build number, Android version, security patch, and kernel version.</li>
+<li>Download the exact matching factory firmware from the device/OEM source.</li>
+<li>Keep untouched copies of relevant stock images.</li>
+<li>Install current Android Platform Tools on the computer/device used for fastboot.</li>
+<li>Enable OEM unlocking and USB debugging when supported.</li>
+<li>Unlock the bootloader using the device maker's supported method.</li>
+<li>Boot Android again and complete the post-wipe setup.</li>
+<li>Select Magisk/KernelSU/APatch based on verified device support.</li>
+<li>Patch only the image/partition required by that rooting method for that device.</li>
+<li>If supported, temporarily boot a test image before permanent flashing.</li>
+<li>Flash only after confirming filename, partition, firmware match, and recovery plan.</li>
+<li>Verify boot, root manager state, calls/SMS/data, Wi-Fi/Bluetooth, camera, and critical apps.</li>
+</ol>
+
+<h3>Fastboot orientation commands</h3>
+<pre><code>adb devices
+adb reboot bootloader
+fastboot devices
+
+# Read device variables where supported
+fastboot getvar current-slot
+fastboot getvar product</code></pre>
+
+<div class="dangerbox">
+<strong>Do not copy a generic <code>fastboot flash boot ...</code> command until the chosen root project's instructions say that <code>boot</code> is the correct target for your exact device/mode.</strong>
+</div>
+</section>
+
+<section id="rootrecovery" data-search>
+<h2>24 — Root recovery & bootloops</h2>
+<p><span class="badge root">Root</span> <span class="badge danger">Recovery</span></p>
+
+<h3>Before modifying anything, have</h3>
+<ul class="checklist">
+<li>Exact stock factory image / firmware.</li>
+<li>Stock <code>boot.img</code> and any other relevant original images.</li>
+<li>Working USB cable.</li>
+<li>Known-good fastboot setup.</li>
+<li>Battery well above emergency level.</li>
+<li>Account credentials needed after a wipe.</li>
+<li>A second device or computer to read recovery instructions.</li>
+</ul>
+
+<h3>If a patched boot image fails</h3>
+<p>The usual recovery concept is to return to bootloader/fastboot and restore the exact stock image that was modified, or use the OEM's official factory restore mechanism. The exact command and partition depend on the device.</p>
+
+<h3>Do not relock blindly</h3>
+<p>Relocking while modified/unverified partitions remain can make recovery harder. Restore a known stock configuration first, then follow OEM-specific relock instructions.</p>
+
+<h3>Anti-rollback matters</h3>
+<p>Modern devices can enforce rollback protection. Older firmware or mismatched security patch levels may not boot even if the hardware model appears correct.</p>
+</section>
+
+<section id="network" data-search>
+<h2>25 — Networking field kit</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>Install tools</h3>
+<pre><code>pkg install curl wget dnsutils inetutils iproute2 openssh nmap netcat-openbsd</code></pre>
+
+<h3>HTTP</h3>
+<pre><code>curl -I https://example.com
+curl -fsSL https://example.com/api/status | jq</code></pre>
+
+<h3>DNS</h3>
+<pre><code>dig example.com
+nslookup example.com</code></pre>
+
+<h3>Connectivity</h3>
+<pre><code>ping -c 4 1.1.1.1
+traceroute example.com</code></pre>
+
+<h3>Listening sockets</h3>
+<pre><code>ss -lntp
+ss -lnup</code></pre>
+
+<h3>Port test</h3>
+<pre><code>nc -vz SERVER 22
+nc -vz SERVER 443</code></pre>
+
+<h3>SSH service inside Termux</h3>
+<pre><code>pkg install openssh
+passwd
+sshd
+whoami
+ip addr</code></pre>
+
+<p>Termux's SSH daemon normally uses a nonstandard port such as 8022. Confirm current configuration rather than assuming.</p>
+
+<div class="warning">
+<strong>Security boundary</strong>
+Network diagnostics are legitimate administrative tools. Only scan systems you own or have permission to test. Keep phone-hosted services bound to localhost unless you deliberately need LAN access.
+</div>
+</section>
+
+<section id="automation" data-search>
+<h2>26 — Automation</h2>
+
+<h3>Termux scripts</h3>
+<p><span class="badge stock">Stock</span></p>
+<pre><code>mkdir -p ~/scripts
+cat > ~/scripts/server-health.sh &lt;&lt;'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+ssh myserver 'uptime; df -h /; systemctl --failed --no-pager'
+EOF
+chmod 700 ~/scripts/server-health.sh</code></pre>
+
+<h3>Termux:Tasker</h3>
+<p>Termux:Tasker allows Tasker to execute Termux commands. Modern Termux includes a permission-gated <code>RUN_COMMAND</code> mechanism specifically to prevent arbitrary apps from executing commands in the Termux context.<a class="cite" href="#src5">[5]</a><a class="cite" href="#src6">[6]</a></p>
+
+<div class="dangerbox">
+<strong>Do not grant Termux command-execution permission casually.</strong>
+A trusted automation app with permission to execute Termux commands can potentially act with all capabilities available to Termux — and if Termux itself has root, that can become much more powerful.
+</div>
+
+<h3>Good automation examples</h3>
+<ul>
+<li>One-tap SSH health check.</li>
+<li>Git pull + static-site build.</li>
+<li>Notify when a local build finishes.</li>
+<li>Copy a generated report to Downloads.</li>
+<li>Start a tmux workspace.</li>
+<li>Back up selected Termux configuration to an encrypted archive.</li>
+</ul>
+</section>
+
+<section id="security" data-search>
+<h2>27 — Security rules</h2>
+
+<h3>1. Treat SSH keys as credentials</h3>
+<pre><code>chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_ed25519*
+chmod 600 ~/.ssh/config 2>/dev/null || true</code></pre>
+<p>Public keys end in <code>.pub</code> and may be shared. Private keys should not.</p>
+
+<h3>2. Do not keep secrets in shell history</h3>
+<p>Avoid commands like:</p>
+<pre><code># Bad pattern — secret becomes part of command history
+curl -H "Authorization: Bearer ACTUAL_SECRET" ...</code></pre>
+
+<p>Prefer environment files with strict permissions, a secret manager, or interactive input where practical.</p>
+
+<h3>3. Verify APK sources</h3>
+<p>For sideloaded tools, prefer the developer's documented repository/release channel. Avoid random APK mirrors, repacks, “premium unlocked” builds, and Telegram uploads with no verifiable provenance.</p>
+
+<h3>4. Minimize elevated layers</h3>
+<p>If native Termux solves it, do not use ADB. If ADB solves it, do not use root. If Shizuku can give one app the needed API, do not give that app unrestricted <code>su</code>.</p>
+
+<h3>5. Root modules are code with extreme privileges</h3>
+<p>A root module can alter boot behavior, policies, networking, and system state. Treat modules like kernel-adjacent software, not phone themes. This applies double to kernel-space modules such as APatch KPMs — a faulty or hostile KPM can compromise the entire device, not just an app.<a class="cite" href="#src16">[16]</a></p>
+</section>
+
+<section id="androidlimits" data-search>
+<h2>28 — Android limits & background killing</h2>
+
+<p>Termux runs as an Android app. Android can restrict background work to protect battery and memory. This is why “my server died when the screen was off” does not automatically mean your script is broken.</p>
+
+<h3>Mitigation</h3>
+<ul>
+<li>Allow Termux appropriate background/battery permissions for workflows that genuinely need them.</li>
+<li>Use <code>tmux</code> for interactive session resilience.</li>
+<li>Use <code>termux-wake-lock</code> only when a task genuinely needs to keep the CPU awake, then release it.</li>
+<li>Prefer a VPS for services that must run 24/7.</li>
+</ul>
+
+<pre><code>termux-wake-lock
+# run required job
+termux-wake-unlock</code></pre>
+
+<h3>systemd note</h3>
+<p>Termux is not a normal systemd boot environment. PRoot is also not equivalent to a VM with its own kernel and init system. If a tutorial assumes <code>systemctl enable --now ...</code>, first ask whether you are actually on a real Linux server.</p>
+</section>
+
+<section id="backup" data-search>
+<h2>29 — Backup & rebuild</h2>
+<p><span class="badge stock">Stock</span></p>
+
+<h3>What matters most</h3>
+<ul>
+<li><code>~/.ssh</code></li>
+<li>Git repositories with unpushed work</li>
+<li><code>~/.gitconfig</code></li>
+<li>shell rc files</li>
+<li><code>~/.termux</code></li>
+<li>automation scripts</li>
+<li>database files</li>
+<li>project-specific <code>.env</code> files — encrypted or otherwise protected</li>
+</ul>
+
+<h3>Export package list</h3>
+<pre><code>pkg list-installed > ~/termux-packages.txt</code></pre>
+
+<h3>Create a configuration archive</h3>
+<pre><code>tar -czf ~/storage/downloads/termux-config-backup.tgz \
+  ~/.ssh ~/.gitconfig ~/.bashrc ~/.termux ~/scripts 2>/dev/null</code></pre>
+
+<div class="warning">
+<strong>That archive may contain private keys.</strong>
+Do not upload it to a public cloud bucket, Git repository, or shared folder unencrypted.
+</div>
+
+<h3>Projects</h3>
+<p>The strongest project backup is usually a clean Git history pushed to a remote repository. For private untracked data, maintain a separate encrypted backup strategy.</p>
+</section>
+
+<section id="trouble" data-search>
+<h2>30 — Troubleshooting encyclopedia</h2>
+
+<details open><summary><code>dnf: command not found</code></summary><div>
+<p>You are likely in Termux or a Debian-like PRoot environment, not AlmaLinux. Run:</p>
+<pre><code>pwd
+uname -a
+echo "$PREFIX"</code></pre>
+<p>If your goal is the AlmaLinux VPS, SSH into it first.</p>
+</div></details>
+
+<details><summary><code>sudo: command not found</code></summary><div>
+<p>Normal Termux does not need or provide desktop-style <code>sudo</code>. Packages install into Termux's own prefix as your app user. On a real remote server, use that server's sudo setup. On a rooted Android device, root access is typically obtained through the root manager's <code>su</code> implementation.</p>
+</div></details>
+
+<details><summary><code>pkg</code> / repository errors</summary><div>
+<ol>
+<li>Run <code>termux-info</code>.</li>
+<li>Confirm Termux came from a supported source (F-Droid or official GitHub releases).</li>
+<li>Do not mix F-Droid, GitHub, and Play plugin APKs.</li>
+<li>Run <code>pkg update</code>.</li>
+<li>Check current Termux project issue/status documentation before applying old mirror hacks.</li>
+</ol>
+</div></details>
+
+<details><summary>Storage permission denied</summary><div>
+<pre><code>termux-setup-storage
+ls -lah ~/storage</code></pre>
+<p>Also check Android Settings → Apps → Termux permissions. Some protected Android directories remain intentionally inaccessible even after shared-storage permission.</p>
+</div></details>
+
+<details><summary>SSH host key changed</summary><div>
+<p>Do not automatically delete the warning. First determine whether the server was rebuilt or the address now points to a different machine. If the change is expected, remove only the specific stale host key:</p>
+<pre><code>ssh-keygen -R SERVER</code></pre>
+</div></details>
+
+<details><summary>SSH disconnects when phone sleeps</summary><div>
+<p>Use <code>tmux</code> on the remote host, adjust Android background restrictions where justified, and use SSH keepalives. For long-running server work, the process itself should run on the server, not depend on the phone staying connected.</p>
+</div></details>
+
+<details><summary>Node package fails to compile</summary><div>
+<p>Check CPU architecture and native dependencies:</p>
+<pre><code>uname -m
+node -p "process.arch"
+pkg install clang make python pkg-config</code></pre>
+<p>If the module assumes glibc or unsupported system libraries, build it on a conventional Linux environment or use PRoot/VPS.</p>
+</div></details>
+
+<details><summary>Python package fails during pip install</summary><div>
+<pre><code>python -m pip install --upgrade pip setuptools wheel
+pkg install clang make pkg-config</code></pre>
+<p>Then inspect the actual compiler error. Do not keep rerunning pip with random flags. Some wheels simply are not published for Android/Termux.</p>
+</div></details>
+
+<details><summary>Shizuku stops after reboot</summary><div>
+<p>Expected in the common unrooted Wireless Debugging workflow — this is a documented system limitation. Re-start the Shizuku service after reboot, or use the fast-restart command from section 16. Root-backed Shizuku can start on boot.<a class="cite" href="#src9">[9]</a></p>
+</div></details>
+
+<details><summary>Termux:X11 shows a black screen</summary><div>
+<ul>
+<li>Confirm both the Android Termux:X11 app and Termux package are installed.</li>
+<li>Confirm <code>DISPLAY</code>.</li>
+<li>Kill stale X11/desktop processes before restarting.</li>
+<li>Check current project README flags because nightly behavior evolves.</li>
+<li>Test a simple X application before debugging a full desktop.</li>
+</ul>
+</div></details>
+
+<details><summary>PRoot says I am root — is my phone rooted?</summary><div>
+<p>No. PRoot's “root” is inside the emulated/container-like userspace. Check actual Android root separately with a trusted root manager or by testing <code>su -c id</code> only if you intentionally installed root.</p>
+</div></details>
+
+<details><summary>Bootloop after root patch</summary><div>
+<p>Stop flashing random images. Use the known-good bootloader/fastboot recovery path and exact stock firmware for the current build. Restore the partition altered by your root method or use the OEM factory restore process. Do not relock until stock state is confirmed.</p>
+</div></details>
+</section>
+
+<section id="cheats" data-search>
+<h2>31 — Command cheat sheets</h2>
+
+<h3>Termux navigation</h3>
+<pre><code>pwd                 # current directory
+ls -lah              # list files
+cd ~/projects        # change directory
+mkdir project        # create directory
+cp A B               # copy
+mv A B               # move/rename
+rm file              # delete file — irreversible in shell
+du -sh *              # sizes
+df -h                 # filesystem usage
+find . -name '*.php'  # find files</code></pre>
+
+<h3>Process inspection</h3>
+<pre><code>ps -ef
+pgrep -af node
+top
+kill PID</code></pre>
+
+<h3>Git</h3>
+<pre><code>git status
+git diff
+git log --oneline --decorate -20
+git pull --ff-only
+git add FILE
+git commit -m "message"
+git push</code></pre>
+
+<h3>SSH</h3>
+<pre><code>ssh myserver
+scp file myserver:/tmp/
+rsync -av ./dir/ myserver:/path/
+ssh -L 8080:127.0.0.1:8080 myserver</code></pre>
+
+<h3>HTTP/DNS</h3>
+<pre><code>curl -I https://example.com
+curl -fsS https://example.com
+dig example.com
+ping -c 4 example.com
+ss -lntp</code></pre>
+
+<h3>Know your environment</h3>
+<pre><code>whoami
+id
+pwd
+uname -a
+echo "$HOME"
+echo "$PREFIX"
+cat /etc/os-release 2>/dev/null || true</code></pre>
+
+<h3>Remote Linux server</h3>
+<pre><code># AlmaLinux / RHEL family
+sudo dnf update
+
+# Debian / Ubuntu
+sudo apt update
+sudo apt upgrade
+
+# systemd servers
+systemctl status SERVICE
+sudo systemctl restart SERVICE</code></pre>
+</section>
+
+<section id="sources" data-search>
+<h2>32 — Sources & verification</h2>
+<p>This guide was checked against current primary/project documentation on August 29, 2026. Inline <sup>[n]</sup> markers throughout the guide point to the sources below. Root procedures are intentionally generic because exact partition instructions must be matched to the device and firmware.</p>
+
+<ol class="source-list">
+<li id="src1"><strong>Termux app / installation:</strong> https://github.com/termux/termux-app</li>
+<li id="src2"><strong>Google Play release status (official announcement):</strong> https://github.com/termux/termux-app/discussions/4000</li>
+<li id="src3"><strong>Termux website/docs:</strong> https://termux.dev/</li>
+<li id="src4"><strong>Termux:API:</strong> https://github.com/termux/termux-api</li>
+<li id="src5"><strong>Termux:Tasker:</strong> https://github.com/termux/termux-tasker</li>
+<li id="src6"><strong>RUN_COMMAND Intent:</strong> https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent</li>
+<li id="src7"><strong>PRoot-Distro:</strong> https://github.com/termux/proot-distro</li>
+<li id="src8"><strong>Termux:X11:</strong> https://github.com/termux/termux-x11</li>
+<li id="src9"><strong>Shizuku setup guide:</strong> https://shizuku.rikka.app/guide/setup/</li>
+<li id="src10"><strong>Android ADB/Wireless Debugging:</strong> https://developer.android.com/studio/run/device</li>
+<li id="src11"><strong>Android bootloader locking/unlocking:</strong> https://source.android.com/docs/core/architecture/bootloader/locking_unlocking</li>
+<li id="src12"><strong>Android Verified Boot:</strong> https://source.android.com/docs/security/features/verifiedboot</li>
+<li id="src13"><strong>Magisk (repo + releases):</strong> https://github.com/topjohnwu/Magisk — https://github.com/topjohnwu/Magisk/releases</li>
+<li id="src14"><strong>KernelSU installation:</strong> https://kernelsu.org/guide/installation.html</li>
+<li id="src15"><strong>KernelSU-Next (community fork):</strong> https://github.com/KernelSU-Next/KernelSU-Next</li>
+<li id="src16"><strong>APatch:</strong> https://apatch.dev/ — https://github.com/bmax121/APatch</li>
+<li id="src17"><strong>Obtainium:</strong> https://github.com/ImranR98/Obtainium</li>
+<li id="src18"><strong>aShell You:</strong> https://github.com/DP-Hridayan/aShellYou</li>
+<li id="src19"><strong>LADB:</strong> https://github.com/tytydraco/LADB</li>
+<li id="src20"><strong>Acode:</strong> https://github.com/Acode-Foundation/Acode</li>
+<li id="src21"><strong>Material Files:</strong> https://github.com/zhanghai/MaterialFiles</li>
+</ol>
+
+<div class="callout">
+<strong>Verification rule:</strong> before rooting, flashing, installing a root module, or changing Android packages, re-check the official documentation. Android moves fast, and root instructions are unusually sensitive to device generation, firmware build, security patch level, partition layout, and kernel.
+</div>
+</section>
+
+</main>
+</div>
+
+<footer class="footer">
+<strong>TERMUX FIELD GUIDE / 2026 EDITION</strong>
+<p class="small">Built as a single-file, offline-first reference. Print it, keep it in Downloads, serve it locally, or open it directly in a browser. Black-and-white by design. Content verified against primary sources on 2026-08-29.</p>
+</footer>
+
+<script>
+(function(){
+  const sidebar = document.getElementById('sidebar');
+  const menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', ()=>sidebar.classList.toggle('open'));
+  sidebar.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>sidebar.classList.remove('open')));
+
+  document.querySelectorAll('pre').forEach(pre=>{
+    const btn=document.createElement('button');
+    btn.className='copy';
+    btn.textContent='COPY';
+    btn.addEventListener('click',async()=>{
+      const code=pre.querySelector('code')?.innerText || pre.innerText;
+      try{
+        await navigator.clipboard.writeText(code);
+        btn.textContent='COPIED';
+        setTimeout(()=>btn.textContent='COPY',1200);
+      }catch(e){
+        btn.textContent='SELECT';
+      }
+    });
+    pre.appendChild(btn);
+  });
+
+  const search=document.getElementById('search');
+  search.addEventListener('input',()=>{
+    const q=search.value.trim().toLowerCase();
+    document.querySelectorAll('[data-search]').forEach(sec=>{
+      if(!q){sec.classList.remove('hidden-by-search');return;}
+      const hit=sec.innerText.toLowerCase().includes(q);
+      sec.classList.toggle('hidden-by-search',!hit);
+    });
+  });
+})();
+</script>
+
+<div style="max-width:1180px;margin:0 auto 2rem;padding:1rem;border:2px solid #000">
+  <strong>PUBLIC RELEASE — v1.0</strong>
+  <p style="margin:.5rem 0 0">Created and maintained by William Lodge. Independent educational project; not an official Termux publication and not affiliated with the Termux project. Guide content is licensed under CC BY 4.0.</p>
+</div>
+
+</body>
+</html>
