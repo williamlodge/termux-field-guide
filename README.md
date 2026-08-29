@@ -56,6 +56,8 @@ Some sections cover ADB, bootloader unlocking, flashing, root, and other privile
 
 Created and maintained by **William Lodge**.
 
+If this guide saved you time, consider [buying me a coffee](https://buymeacoffee.com/williamlodge).
+
 ## License
 
 The written guide and original presentation are licensed under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**. See `LICENSE`.
