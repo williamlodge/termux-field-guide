@@ -26,7 +26,9 @@ A practical, single-file, offline-first field manual for turning an Android phon
 
 ## Read the guide
 
-Open `index.html` directly in any modern browser. It is designed to work offline.
+**Live site:** https://williamlodge.github.io/termux-field-guide/
+
+Or open `index.html` directly in any modern browser — it is designed to work offline.
 
 You can also serve it locally:
 
