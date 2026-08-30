@@ -1,0 +1,10 @@
+{
+  "id":"./","name":"Termux Field Guide","short_name":"Termux Guide",
+  "description":"Android power-user field manual for Termux, SSH, Git, PRoot, X11, ADB, Shizuku, rooting, networking and automation.",
+  "start_url":"./","scope":"./","display":"standalone","background_color":"#ffffff","theme_color":"#000000","orientation":"any",
+  "categories":["developer","utilities","education"],
+  "icons":[
+    {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"./icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
